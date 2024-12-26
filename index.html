@@ -1,0 +1,233 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-do List App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .main {
+            background-color: #fff;
+            min-height: 90vh;
+            max-width: 360px;
+            width: 100%;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007BFF;
+            text-shadow: 1px 1.5px 2px rgba(0, 0, 0, 0.1);
+        }
+        .box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f9f9f9;
+            border-radius: 20px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        #input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 10px;
+            font-size: 14px;
+        }
+        #btn {
+            border: none;
+            outline: none;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+        #btn:hover {
+            background-color: #0056b3;
+        }
+        #list {
+            margin-top: 10px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        li {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+            position: relative;
+        }
+        li.completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+        li button {
+            border: none;
+            background-color: transparent;
+            font-size: 18px;
+            color: #ff5945;
+            cursor: pointer;
+        }
+        li button:hover {
+            color: #d43d2f;
+        }
+        li .check {
+            margin-right: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            color: #007BFF;
+        }
+        li .check.completed {
+            color: #28a745;
+        }
+        #No_task {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <h1>To-Do App</h1>
+        <div class="box">
+            <input id="input" type="text" placeholder="Enter your task" autocomplete="off">
+            <button id="btn" onclick="addTask()">Add</button>
+        </div>
+        <ul id="list">
+            <p id="No_task">No tasks available</p>
+        </ul>
+    </div>
+    <script>
+        let Text = document.getElementById('input');
+        let allTasks = document.getElementById('list');
+        let Ntask = 0;
+
+        // Check and toggle the "No task" placeholder
+        function check_Ntask() {
+            const placeholder = document.getElementById('No_task');
+            placeholder.style.display = Ntask === 0 ? "block" : "none";
+        }
+
+        // Add a task to the list
+        function addTask() {
+            if (Text.value.trim() === "") {
+                alert('Please enter a task');
+                return;
+            }
+
+            const newTask = document.createElement('li');
+            const checkBtn = document.createElement('span');
+            const removeBtn = document.createElement('button');
+
+            checkBtn.innerHTML = '✔';
+            checkBtn.className = 'check';
+            checkBtn.onclick = function() {
+                if (newTask.classList.contains('completed')) {
+                    newTask.classList.remove('completed');
+                    checkBtn.classList.remove('completed');
+                } else {
+                    newTask.classList.add('completed');
+                    checkBtn.classList.add('completed');
+                }
+                saveData();
+            };
+
+            newTask.innerHTML = `<span>${Text.value.trim()}</span>`;
+            newTask.prepend(checkBtn);
+
+            removeBtn.innerHTML = '✖';
+            removeBtn.onclick = function() {
+                newTask.remove();
+                Ntask--;
+                check_Ntask();
+                saveData();
+            };
+
+            newTask.appendChild(removeBtn);
+            allTasks.appendChild(newTask);
+            Text.value = "";
+            Ntask++;
+
+            check_Ntask();
+            saveData();
+        }
+
+        // Save tasks to localStorage
+        function saveData() {
+            localStorage.setItem("tasks", allTasks.innerHTML);
+            localStorage.setItem("taskCount", Ntask);
+        }
+
+        // Load tasks from localStorage
+        function loadData() {
+            const savedTasks = localStorage.getItem("tasks");
+            const savedCount = localStorage.getItem("taskCount");
+
+            if (savedTasks) {
+                allTasks.innerHTML = savedTasks;
+                Ntask = parseInt(savedCount, 10) || 0;
+
+                // Reattach event listeners to buttons and checkmarks after reloading tasks
+                const checks = allTasks.querySelectorAll('.check');
+                checks.forEach((check) => {
+                    check.onclick = function() {
+                        const task = check.parentElement;
+                        if (task.classList.contains('completed')) {
+                            task.classList.remove('completed');
+                            check.classList.remove('completed');
+                        } else {
+                            task.classList.add('completed');
+                            check.classList.add('completed');
+                        }
+                        saveData();
+                    };
+                });
+
+                const buttons = allTasks.querySelectorAll('button');
+                buttons.forEach((btn) => {
+                    btn.onclick = function() {
+                        btn.parentElement.remove();
+                        Ntask--;
+                        check_Ntask();
+                        saveData();
+                    };
+                });
+            } else {
+                Ntask = 0;
+            }
+            check_Ntask();
+        }
+
+        // Load data on page load
+        loadData();
+    </script>
+</body>
+</html>
