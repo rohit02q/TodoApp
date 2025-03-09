@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do-App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        html {
+            font-size: 67.25%;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+        }
+
+        p,
+        li {
+            font-size: 1.4rem;
+        }
+
+        body {
+            width: 100%;
+            background-color: #e3e3e3;
+            display: flex;
+            justify-content: center;
+
+        }
+
+        :root {
+            --text-color: #000;
+            --bg-color: #f0f0ff;
+            --head-color: rgb(15, 63, 146);
+        }
+
+        .main {
+            margin-top: 5rem;
+            width: 35rem;
+            min-height: 50rem;
+            padding: 3rem 3rem;
+            box-shadow: 0 0 5px 0.5px #a8a6a6;
+            border-radius: 2rem;
+            -webkit-border-radius: 2rem;
+            -moz-border-radius: 2rem;
+            -ms-border-radius: 2rem;
+            -o-border-radius: 2rem;
+            background-color: var(--bg-color);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--head-color);
+            text-shadow: 0 0 1px #545050;
+            margin-bottom: 1rem;
+        }
+
+        .textInput {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            background-color: #e4e8f0;
+            -webkit-border-radius: 1rem;
+            -moz-border-radius: 1rem;
+            -ms-border-radius: 1rem;
+            -o-border-radius: 1rem;
+            padding-left: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .textInput input {
+            border: none;
+            width: 100%;
+            background: transparent;
+            padding: 1rem;
+            color: var(--text-color);
+            outline: none;
+            font-size: 1.6rem;
+
+            &::placeholder {
+                color: #545050;
+            }
+        }
+
+        .textInput button {
+            border: none;
+            font-size: 1.6rem;
+            width: 5rem;
+            color: #eeeaea;
+            padding: 1rem;
+            height: 100%;
+            background-color: var(--head-color);
+            border-radius: 0 1rem 1rem 0;
+            -webkit-border-radius: 0 1rem 1rem 0;
+            -moz-border-radius: 0 1rem 1rem 0;
+            -ms-border-radius: 0 1rem 1rem 0;
+            -o-border-radius: 0 1rem 1rem 0;
+            cursor: pointer;
+
+            &:hover {
+                background-color: rgb(7, 38, 91);
+                ;
+            }
+        }
+
+        .todoList {
+            width: 100%;
+            height: auto;
+            margin-top: 1rem;
+        }
+
+        .todoList li {
+            display: flex;
+            justify-content: space-between;
+            list-style-type: none;
+            color: var(--text-color);
+            margin-top: 0.5rem;
+            letter-spacing: 0.1rem;
+            margin-bottom: 0.8rem;
+
+            & span {
+                text-align: center;
+                width: 3rem;
+                padding: 0.3rem;
+                background-color: #e4e8f0;
+                border-radius: 1rem;
+                -webkit-border-radius: 1rem;
+                -moz-border-radius: 1rem;
+                -ms-border-radius: 1rem;
+                -o-border-radius: 1rem;
+                cursor: pointer;
+                &:hover{
+                    background-color: #cbced4;
+                }
+            }
+        }
+
+        #No-task {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+            color: #636060;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        @media (width <=480px) {
+            body {
+                display: block;
+            }
+
+            .main {
+                width: 100%;
+                min-height: 100vh;
+                margin-top: 0;
+                border-radius:0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <h1>To Do List</h1>
+        <div class="textInput">
+            <input type="text" id="input" placeholder="Enter Your Task Here..." autocomplete="off">
+            <button id="btn"> Add </button>
+        </div>
+        <hr>
+        <div class="todoList">
+            <p id="No-task">No task avaliable</p>
+        </div>
+    </div>
+    <script>
+
+        const input = document.getElementById("input");
+        const btn = document.getElementById('btn');
+        const no_task = document.getElementById('No-task')
+        const todDoList = document.querySelector('.todoList');
+        let allToDo = [];
+
+        const getTodoListFromLocal = () => {
+            return JSON.parse(localStorage.getItem("allList")) || []
+        }
+        allToDo = getTodoListFromLocal()
+        const showList = (data) => {
+            let newList = document.createElement('li')
+            newList.innerHTML =
+                `${data}<span class="removeBtn">✖</span>`
+            todDoList.appendChild(newList)
+            checkTask()
+        }
+        const addTask = () => {
+            if (input.value == "") {
+                alert("Enter Task First")
+            }
+            else {
+                let newTask = input.value.trim()
+                allToDo.push(newTask)
+                localStorage.setItem('allList', JSON.stringify(allToDo))
+                showList(newTask);
+                input.value = "";
+            }
+        }
+        const showLocalData = () => {
+            allToDo.forEach((curElem) => {
+                showList(curElem)
+            })
+        }
+
+        const checkTask = () => {
+            if (allToDo.length == 0) {
+                no_task.style.display = 'block'
+            }
+            else {
+                no_task.style.display = 'none'
+            }
+        }
+        const removeData = (r) => {
+            let forRemove = r.innerHTML.split("<")[0];
+            allToDo.splice(allToDo.indexOf(forRemove), 1);
+            r.remove()
+            checkTask()
+            localStorage.setItem("allList", JSON.stringify(allToDo));
+
+
+        }
+        showLocalData()
+        btn.addEventListener('click', () => {
+            addTask()
+        })
+
+        todDoList.addEventListener('click', (e) => {
+            if (e.target.classList.contains("removeBtn")) {
+                dataForRemove = e.target.parentElement
+                removeData(dataForRemove)
+            }
+        })
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key == 'Enter') {
+                addTask()
+            }
+        })
+    </script>
+</body>
+
+</html>
